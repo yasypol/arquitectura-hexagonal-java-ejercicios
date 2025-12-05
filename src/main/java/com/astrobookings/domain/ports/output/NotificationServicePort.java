@@ -1,0 +1,14 @@
+package com.astrobookings.domain.ports.output;
+
+import java.util.List;
+
+import com.astrobookings.domain.models.Booking;
+
+public interface NotificationServicePort {
+
+  void notifyConfirmation(String flightId, int passengerCount);
+
+  void notifyCancellation(String flightId, int passengerCount);
+
+  void notifyCancellation(String flightId, List<Booking> bookings);
+}
