@@ -3,16 +3,16 @@ package com.astrobookings.business;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import com.astrobookings.persistence.FlightRepository;
-import com.astrobookings.persistence.RocketRepository;
+import com.astrobookings.persistence.interfaces.FlightRepositoryPort;
+import com.astrobookings.persistence.interfaces.RocketRepositoryPort;
 import com.astrobookings.persistence.models.Flight;
 import com.astrobookings.persistence.models.FlightStatus;
 
 public class FlightService {
-  private final FlightRepository flightRepository;
-  private final RocketRepository rocketRepository;
+  private final FlightRepositoryPort flightRepository;
+  private final RocketRepositoryPort rocketRepository;
 
-  public FlightService(FlightRepository flightRepository, RocketRepository rocketRepository) {
+  public FlightService(FlightRepositoryPort flightRepository, RocketRepositoryPort rocketRepository) {
     this.flightRepository = flightRepository;
     this.rocketRepository = rocketRepository;
   }

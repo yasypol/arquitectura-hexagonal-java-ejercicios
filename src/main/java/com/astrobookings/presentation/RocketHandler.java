@@ -4,12 +4,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
-import com.astrobookings.persistence.RocketRepository;
-import com.astrobookings.persistence.models.Rocket;
+import com.astrobookings.business.RocketService;
+import com.astrobookings.business.interfaces.RocketServicePort;
+import com.astrobookings.business.models.RocketDto;
+import com.astrobookings.persistence.factory.RepositoryFactory;
 import com.sun.net.httpserver.HttpExchange;
 
 public class RocketHandler extends BaseHandler {
-  private final RocketRepository rocketRepository = new RocketRepository();
+
+  private final RocketServicePort rocketService = new RocketService(RepositoryFactory.createRocketRepository());
 
   @Override
   public void handle(HttpExchange exchange) throws IOException {
@@ -29,7 +32,7 @@ public class RocketHandler extends BaseHandler {
     int statusCode = 200;
 
     try {
-      response = this.objectMapper.writeValueAsString(rocketRepository.findAll());
+      response = this.objectMapper.writeValueAsString(rocketService.getAllRockets());
     } catch (Exception e) {
       statusCode = 500;
       response = "{\"error\": \"Internal server error\"}";
@@ -39,6 +42,7 @@ public class RocketHandler extends BaseHandler {
   }
 
   private void handlePost(HttpExchange exchange) throws IOException {
+    
     String response = "";
     int statusCode = 200;
 
@@ -46,15 +50,16 @@ public class RocketHandler extends BaseHandler {
       // Parse JSON body
       InputStream is = exchange.getRequestBody();
       String body = new String(is.readAllBytes(), StandardCharsets.UTF_8);
-      Rocket rocket = this.objectMapper.readValue(body, Rocket.class);
+      RocketDto rocket = this.objectMapper.readValue(body, RocketDto.class);
 
       // Business validations mixed with input validation
       String error = validateRocket(rocket);
+
       if (error != null) {
         statusCode = 400;
         response = "{\"error\": \"" + error + "\"}";
       } else {
-        Rocket saved = rocketRepository.save(rocket);
+        String saved = rocketService.createRocket(rocket);
         statusCode = 201;
         response = this.objectMapper.writeValueAsString(saved);
       }
@@ -66,14 +71,12 @@ public class RocketHandler extends BaseHandler {
     sendResponse(exchange, statusCode, response);
   }
 
-  private String validateRocket(Rocket rocket) {
-    if (rocket.getName() == null || rocket.getName().trim().isEmpty()) {
+  private String validateRocket(RocketDto rocket) {
+
+    if (rocket.name == null || rocket.name.trim().isEmpty()) {
       return "Rocket name must be provided";
     }
-    if (rocket.getCapacity() <= 0 || rocket.getCapacity() > 10) {
-      return "Rocket capacity must be between 1 and 10";
-    }
-    // Speed is optional, no validation
+    
     return null;
   }
 

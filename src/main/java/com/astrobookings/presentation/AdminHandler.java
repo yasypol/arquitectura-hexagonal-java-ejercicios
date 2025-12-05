@@ -2,17 +2,18 @@ package com.astrobookings.presentation;
 
 import java.io.IOException;
 
+import com.astrobookings.persistence.factory.RepositoryFactory;
+import com.astrobookings.persistence.interfaces.BookingRepositoryPort;
+import com.astrobookings.persistence.interfaces.FlightRepositoryPort;
 import com.astrobookings.business.CancellationService;
-import com.astrobookings.persistence.BookingRepository;
-import com.astrobookings.persistence.FlightRepository;
 import com.sun.net.httpserver.HttpExchange;
 
 public class AdminHandler extends BaseHandler {
   private final CancellationService cancellationService;
 
   public AdminHandler() {
-    FlightRepository flightRepository = new FlightRepository();
-    BookingRepository bookingRepository = new BookingRepository();
+    FlightRepositoryPort flightRepository = RepositoryFactory.createFlightRepository();
+    BookingRepositoryPort bookingRepository = RepositoryFactory.createBookingRepository();
     this.cancellationService = new CancellationService(flightRepository, bookingRepository);
   }
 
